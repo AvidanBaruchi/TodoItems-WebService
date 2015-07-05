@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="jquery.mobile-1.4.5/jquery-1.11.2.js"></script>
+</head>
+<body>
+<script>
+    function putItem()
+    {
+        var url = 'https://todoitems-avdan.c9.io/todoitems/item' + $('#idU').val().trim();
+        var item = {};
+
+        item.name = $('#nameU').val();
+        item.text = $('#textU').val();
+        item.expiration = new Date().getTime();
+
+        var data = JSON.stringify(item);
+
+        $.ajax({
+            method: "PUT",
+            url: url,
+            dataType: 'json',
+            data: {item: data},
+            xhrFields: {
+                withCredentials: true },
+            success: function(data, text ,jqXHR)
+            {
+                getList();
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#playGround").html("Failed! " + textStatus + errorThrown);
+            }
+        });
+    }
+
+    function getSingleItem()
+    {
+        var url = 'https://todoitems-avdan.c9.io/todoitems/item' + $('#getSingle').val();
+
+        $.ajax({
+            method: "GET",
+            url: url,
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true },
+            success: function(data, text ,jqXHR)
+            {
+                fillPlayGround(data);
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#playGround").html("Failed! " + textStatus + errorThrown);
+            }
+        });
+    }
+
+    function deleteCollection()
+    {
+        $.ajax({
+            method: "DELETE",
+            type: 'DELETE',
+            url: "https://todoitems-avdan.c9.io/todoitems",
+            dataType: 'json',
+            ContentType: 'application/json;charset=utf-8',
+            xhrFields: {
+                withCredentials: true },
+            success: function(data, text ,jqXHR)
+            {
+                getList();
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#playGround").html("Failed! " + textStatus + errorThrown);
+            }
+        });
+    }
+
+    function deleteItem()
+    {
+        var url = 'https://todoitems-avdan.c9.io/todoitems/item' + $('#deleteID').val();
+
+        $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true },
+            success: function(data, text ,jqXHR)
+            {
+                getList();
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#playGround").html("Failed! " + textStatus + errorThrown);
+            }
+        });
+    }
+
+    function putCollection()
+    {
+        var collection = [];
+        var temp = {};
+
+        collection[0] = {};
+        collection[0].name = 'item1';
+        collection[0].text = 'item1 text';
+        collection[0].expiration = Date.now();
+
+        collection[1] = {};
+        collection[1].name = 'item2';
+        collection[1].text = 'item2 text';
+        collection[1].expiration = Date.now();
+
+        collection[2] = {};
+        collection[2].name = 'item3';
+        collection[2].text = 'item3 text';
+        collection[2].expiration = Date.now();
+
+        var data = JSON.stringify(collection);
+
+        $.ajax({
+            type: "PUT",
+            url: 'https://todoitems-avdan.c9.io/todoitems',
+            dataType : 'json',
+            data: {collection : data},
+            xhrFields: {
+                withCredentials: true },
+            success: function(data, text ,jqXHR)
+            {
+                getList();
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#playGround").innerHTML = "Failed! " + textStatus + errorThrown;
+            }
+        });
+    }
+
+    function getList()
+    {
+        $.ajax({
+            method: 'GET',
+            url: 'https://todoitems-avdan.c9.io/todoitems',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data, text ,jqXHR)
+            {
+				//alert(new Date(Date.now()).toDateString());
+				/*alert(new Date(Date.now()).toString());
+				alert(new Date(Date.now()).toLocaleString());
+				alert(new Date(Date.now()).toLocaleTimeString());
+				alert("UTC: " + new Date(Date.now()).toUTCString());
+				alert(new Date(Date.now()).toTimeString());*/
+				//alert(new Date(Date.now()).toISOString());
+				//alert(Date.now().toISOString());
+				
+				
+				/*var arr = data.data;
+				var ggg = arr.filter(function(item){return item.id == 167});
+				alert(ggg.toLocaleString());*/
+                fillPlayGround(data);
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#playGround").innerHTML = "Failed! " + textStatus + errorThrown;
+            }
+        });
+
+
+/*        var xhr = new XMLHttpRequest();
+
+        xhr.withCredentials = true;
+        xhr.open("GET", "https://todoitems-avdan.c9.io/todoitems", true);
+
+        xhr.onreadystatechange = function()
+        {
+            if((xhr.readyState == 4) && (xhr.status == 200))
+            {
+                document.getElementById('playGround').innerHTML = xhr.responseText;
+            }
+        };
+
+        xhr.send();*/
+    }
+
+    function addItem() // put on the collection
+    {
+        $.ajax({
+            type: "POST",
+            url: 'https://todoitems-avdan.c9.io/todoitems',
+            data: {
+                name: $('#name').val(),
+                text: $('#text').val(),
+                expiration: new Date().getTime()
+            },
+            xhrFields: {
+                withCredentials: true },
+            success: function(data, text ,jqXHR)
+            {
+                getList();
+            }
+        });
+    }
+
+    function fillPlayGround(data)
+    {
+        if(data.message == 'success')
+        {
+            $("#playGround").html(JSON.stringify(data.data));
+        }
+        else
+        {
+            $("#playGround").html(JSON.stringify("Failed: " + data.reason));
+        }
+    }
+	
+	function logOut()
+	{
+        $.ajax({
+            type: "GET",
+            url: "https://todoitems-avdan.c9.io/logout",
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true },
+            success: function(data, text ,jqXHR)
+            {
+                if(data.message == 'success')
+                {
+                    alert(data.message);
+                }
+                else
+                {
+                    alert(data.message + ': ' + data.reason);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#playGround").html("Failed! " + textStatus + errorThrown);
+            }
+        });
+	}
+
+    (function()
+    {
+        $.ajax({
+           type: "GET",
+           url: "https://todoitems-avdan.c9.io/user",
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true },
+            success: function(data, text ,jqXHR)
+            {
+                if(data.message == 'success')
+                {
+                    $("#profile").append(data.data.name);
+                    $("#picture").attr('src',data.data.picture);
+                }
+                else
+                {
+                    $("#playGround").html(JSON.stringify("Failed: " + data.reason));
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                $("#playGround").html("Failed! " + textStatus + errorThrown);
+            }
+        });
+    })();
+</script>
+
+<div id="profile"><img id="picture" src=""></div>
+<div> <!-- https://todoitems-avdan.c9.io/auth/facebook -->
+    <a href="https://todoitems-avdan.c9.io/login">LogIn</a>
+    <br>
+    <a href="https://todoitems-avdan.c9.io/logout">Log Out</a>
+    <button id="logOut" onclick="logOut()">LogOutXhr</button>
+    <br>
+    <button id="getList" onclick="getList()">get List</button> <br>
+
+    <hr> Add Item: <br>
+    Name: <input id="name" type="text"> <br>
+    Text: <input id="text" type="text"> <br>
+    <input type="submit" onclick="addItem()">
+    <br><br><br><br>
+
+    <hr> update or create: <br>
+    ID: <input type="text" id="idU"> <br>
+    Name: <input id="nameU" type="text"> <br>
+    Text: <input id="textU" type="text"> <br>
+    Expiration: NOW!! <br>
+    <input type="submit" onclick="putItem()">
+    <br><br><br><br>
+
+    Delete id: <input id="deleteID" type="text"> <br>
+    <button id="deleteButton" onclick="deleteItem()">Delete item</button>
+    <br><br><br><br>
+
+    get By id: <input id="getSingle" type="text"> <br>
+    <button id="getSingleButton" onclick="getSingleItem()">Get Item</button>
+    <br><br><br><br>
+
+    <button id="putCollection" type="button" onclick="putCollection()">PUT Collection</button>
+    <br><br><br><br>
+
+    <button id="deleteCollection" type="button" onclick="deleteCollection()">Delete Collection</button>
+</div>
+
+<hr>
+<div id="playGround"></div>
+
+</body>
+</html>
